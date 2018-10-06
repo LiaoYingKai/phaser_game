@@ -41,8 +41,8 @@ function create() {
 
   platforms.create(400, 568, 'ground').setScale(2).refreshBody();
 
-  platforms.create(400, 100, 'ground').setScale(0.5);
-  platforms.create(600, 400, 'ground').setScale(1.5);
+  platforms.create(400, 100, 'ground').setScale(0.5).refreshBody();
+  platforms.create(600, 400, 'ground').setScale(1.5).refreshBody();
   platforms.create(50, 250, 'ground');
   platforms.create(750, 220, 'ground');
 
@@ -81,6 +81,27 @@ function create() {
   });
   player.body.setGravityY(300);
   this.physics.add.collider(player, platforms);
+  cursors = this.input.keyboard.createCursorKeys();
+
 }
 
-function update() {}
+function update() {
+
+  if (cursors.left.isDown) {
+    player.setVelocityX(-160);
+
+    player.anims.play('left', true);
+  } else if (cursors.right.isDown) {
+    player.setVelocityX(160);
+
+    player.anims.play('right', true);
+  } else {
+    player.setVelocityX(0);
+
+    player.anims.play('turn');
+  }
+
+  if (cursors.up.isDown && player.body.touching.down) {
+    player.setVelocityY(-330);
+  }
+}
