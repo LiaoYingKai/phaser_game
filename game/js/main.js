@@ -2,6 +2,15 @@ var config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
+  physics: {
+    default: 'arcade',
+    // arcade: {
+    //   gravity: {
+    //     y: 300
+    //   },
+    //   debug: false
+    // }
+  },
   scene: {
     preload: preload,
     create: create,
@@ -24,10 +33,17 @@ function preload() {
   );
 }
 
+var platforms;
+
 function create() {
-  // this.add.image(400, 0, 'sky')
   this.add.image(0, 0, 'sky').setOrigin(0, 0)
-  this.add.image(400, 300, 'dude')
+  platforms = this.physics.add.staticGroup();
+
+  platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+
+  platforms.create(600, 400, 'ground');
+  platforms.create(50, 250, 'ground');
+  platforms.create(750, 220, 'ground');
 }
 
 function update() {}
