@@ -1,6 +1,7 @@
 var width = 288
 var height = 505
-var test
+var sky
+var ground
 class backgroundScene extends Phaser.Scene {
   constructor() {
     super({
@@ -15,12 +16,13 @@ class backgroundScene extends Phaser.Scene {
 
   }
   create() {
-    this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(1, 0.8)
-    test = this.add.image(0, height / 5 * 4, 'ground').setOrigin(0, 0)
+    sky = this.add.tileSprite(0, 0, width, height, 'background').setOrigin(0, 0).setScale(1, 0.8)
+    ground = this.add.tileSprite(0, height / 5 * 4, width, height / 5, 'ground').setOrigin(0, 0)
+
   }
   update() {
-    // this.tilePosition.x -= -1
-    test.setVelocityX(-1)
+    sky.tilePositionX += 1
+    ground.tilePositionX += 1
   }
 }
 class startGame extends Phaser.Scene {
