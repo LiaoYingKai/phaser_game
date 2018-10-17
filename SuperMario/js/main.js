@@ -1,7 +1,7 @@
 const config = {
   type: Phaser.AUTO,
-  width: 171,
-  height: 160,
+  width: 176,
+  height: 176,
   zoom: 3, // Since we're working with 16x16 pixel tiles, let's scale up the canvas by 3x
   pixelArt: true, // Force the game to scale images up crisply
   parent: "game-container",
