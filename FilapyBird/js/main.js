@@ -1,5 +1,6 @@
 var width = 288
 var height = 505
+var test
 class backgroundScene extends Phaser.Scene {
   constructor() {
     super({
@@ -11,10 +12,15 @@ class backgroundScene extends Phaser.Scene {
     console.log('backgroundScene preload');
     this.load.image('background', 'assets/background.png')
     this.load.image('ground', 'assets/ground.png')
+
   }
   create() {
     this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(1, 0.8)
-    this.add.image(0, height / 5 * 4, 'ground').setOrigin(0, 0)
+    test = this.add.image(0, height / 5 * 4, 'ground').setOrigin(0, 0)
+  }
+  update() {
+    // this.tilePosition.x -= -1
+    test.setVelocityX(-1)
   }
 }
 class startGame extends Phaser.Scene {
@@ -27,9 +33,20 @@ class startGame extends Phaser.Scene {
   preload() {
     console.log('startGame preload');
     this.load.image('startButton', 'assets/start-button.png')
+    this.load.image('title', 'assets/title.png')
+
   }
   create() {
-    this.add.image(144, 300, 'startButton')
+    this.add.image(width / 2, 150, 'title')
+    this.add.image(width / 2, 300, 'startButton').setInteractive().on('pointerdown', () => {
+      this.scene.setVisible(true, this.scene.get('playGame'))
+      this.scene.setVisible(false, this.scene.get('startGame'))
+      console.log('fuck')
+    })
+
+  }
+  update() {
+
   }
 }
 class playGame extends Phaser.Scene {
@@ -41,10 +58,25 @@ class playGame extends Phaser.Scene {
   }
   preload() {
     console.log('playGame preload');
-    this.load.image('getReady', 'assets/get-ready.png')
+    this.load.spritesheet('bird', 'assets/bird.png', {
+      frameWidth: 60,
+      frameHeight: 60
+    })
   }
   create() {
-    this.add.image(0, 0, 'getReady').setOrigin(0, 0)
+    // var config = {
+    //   key: 'birds',
+    //   frames: this.anims.generateFrameNumbers('bird', {
+    //     start: 0,
+    //     end: 2
+    //   }),
+    //   repeat: -1,
+    //   frameRate: 15
+    // }
+    // this.anims.create(config)
+    // this.bird = this.add.sprite(50, height / 2, 'bird')
+    // this.bird.anims.play('birds')
+    // this.add.image(50, height / 2, 'bird')
     this.scene.setVisible(false, this.scene.get('playGame'))
     this.scene.setVisible(false, this.scene.get('gameoverScene'))
   }
