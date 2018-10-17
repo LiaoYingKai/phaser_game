@@ -2,6 +2,7 @@ var width = 288
 var height = 505
 var sky
 var ground
+var bird
 class backgroundScene extends Phaser.Scene {
   constructor() {
     super({
@@ -10,10 +11,9 @@ class backgroundScene extends Phaser.Scene {
     })
   }
   preload() {
-    console.log('backgroundScene preload');
     this.load.image('background', 'assets/background.png')
     this.load.image('ground', 'assets/ground.png')
-
+    console.log('backgroundScene preload');
   }
   create() {
     sky = this.add.tileSprite(0, 0, width, height, 'background').setOrigin(0, 0).setScale(1, 0.8)
@@ -36,7 +36,6 @@ class startGame extends Phaser.Scene {
     console.log('startGame preload');
     this.load.image('startButton', 'assets/start-button.png')
     this.load.image('title', 'assets/title.png')
-
   }
   create() {
     this.add.image(width / 2, 150, 'title')
@@ -45,11 +44,8 @@ class startGame extends Phaser.Scene {
       this.scene.setVisible(false, this.scene.get('startGame'))
       console.log('fuck')
     })
-
   }
-  update() {
-
-  }
+  update() {}
 }
 class playGame extends Phaser.Scene {
   constructor() {
@@ -60,28 +56,22 @@ class playGame extends Phaser.Scene {
   }
   preload() {
     console.log('playGame preload');
+    this.load.spritesheet('pipes', 'assets/pipes.png', {
+      frameWidth: 54,
+      frameHeight: 320
+    })
     this.load.spritesheet('bird', 'assets/bird.png', {
-      frameWidth: 60,
-      frameHeight: 60
+      frameWidth: 34,
+      frameHeight: 24
     })
   }
   create() {
-    // var config = {
-    //   key: 'birds',
-    //   frames: this.anims.generateFrameNumbers('bird', {
-    //     start: 0,
-    //     end: 2
-    //   }),
-    //   repeat: -1,
-    //   frameRate: 15
-    // }
-    // this.anims.create(config)
-    // this.bird = this.add.sprite(50, height / 2, 'bird')
-    // this.bird.anims.play('birds')
-    // this.add.image(50, height / 2, 'bird')
     this.scene.setVisible(false, this.scene.get('playGame'))
     this.scene.setVisible(false, this.scene.get('gameoverScene'))
+    this.add.image(200, 200, 'pipes')
+    bird = this.add.sprite(50, height / 2, 'bird')
   }
+  update() {}
 }
 class gameoverScene extends Phaser.Scene {
   constructor() {
@@ -96,30 +86,8 @@ class gameoverScene extends Phaser.Scene {
   }
   create() {
     this.add.image(0, 300, 'gameover').setOrigin(0, 0)
-    // this.scene.bringToTop()
-    // this.scene.setVisible(false, this.scene.get('startGame'))
   }
 }
-// var playGame = new Phaser.Class({
-//   extends: Phaser.Scene,
-//   preload: function() {
-//     console.log('场景 2 preload');
-//     this.load.image('background', 'assets/background.png')
-//   },
-//   create: function() {
-//     this.add.image(0, 0, 'background').setOrigin(0, 0)
-//   },
-// })
-// var startGame = new Phaser.Class({
-//   extends: Phaser.Scene,
-//   preload: function() {
-//     console.log('场景 1 preload');
-//     this.load.image('gameover', 'assets/gameover.png')
-//   },
-//   create: function() {
-//     this.add.image(0, 0, 'gameover').setOrigin(0, 0)
-//   }
-// })
 
 var config = {
   type: Phaser.AUTO,
