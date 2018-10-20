@@ -76,6 +76,7 @@ var WorldScene = new Phaser.Class({
 
     this.physics.add.collider(this.player, obstacles);
 
+    this.cameras.main.setZoom(2)
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
     this.cameras.main.startFollow(this.player)
     this.cameras.main.roundPixels = true
@@ -95,8 +96,6 @@ var WorldScene = new Phaser.Class({
     zone.y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
     this.cameras.main.shake(300);
     this.cameras.main.flash(300);
-
-
   },
   update: function(time, delta) {
     this.player.body.setVelocity(0)
@@ -131,7 +130,6 @@ var config = {
   parent: 'content',
   width: 800,
   height: 600,
-  zoom: 2,
   pixelArt: true,
   physics: {
     default: 'arcade',
