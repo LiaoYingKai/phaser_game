@@ -3,6 +3,7 @@ var height = 505
 var sky
 var ground
 var bird
+var platforms
 class backgroundScene extends Phaser.Scene {
   constructor() {
     super({
@@ -64,14 +65,20 @@ class playGame extends Phaser.Scene {
       frameWidth: 34,
       frameHeight: 24
     })
+
   }
+
   create() {
     this.scene.setVisible(false, this.scene.get('playGame'))
     this.scene.setVisible(false, this.scene.get('gameoverScene'))
-    this.add.image(200, 200, 'pipes')
+    platforms = this.physics.add.staticGroup();
+    platforms.create(0, 150, 'pipes').setOrigin(0, 0)
+    // pipe = this.add.image(0, -150, 'pipes').setOrigin(0, 0)
     bird = this.add.sprite(50, height / 2, 'bird')
   }
-  update() {}
+  update() {
+    pipe.setVelocityY(-1)
+  }
 }
 class gameoverScene extends Phaser.Scene {
   constructor() {
