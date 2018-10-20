@@ -5,7 +5,7 @@ class playGame extends Phaser.Scene {
     })
   }
   preload() {
-
+    game.camera.setBackgroundColor('rgba(255, 0, 0, 0.5)');
   }
   create() {
 
@@ -19,9 +19,7 @@ var config = {
   type: Phaser.AUTO,
   width: 480,
   height: 320,
-  scene: {
-    playGame
-  }
+  scene: [playGame]
 }
 
 var game = new Phaser.Game(config)
