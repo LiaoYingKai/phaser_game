@@ -15,6 +15,17 @@ var graphics
 var path
 //敵人的速度
 var ENEMY_SPEED = 1 / 10000
+//地圖可以放炮塔的地方，-1爲不能放
+var map = [
+  [0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, -1, -1, -1, 0, -1, -1, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0]
+];
 
 function preload() {
   this.load.atlas('sprites', 'assets/spritesheet.png', 'assets/spritesheet.json')
@@ -47,10 +58,26 @@ var Enemy = new Phaser.Class({
     }
   }
 })
+var Turret = new Phaser.Class({
+  Extends: Phaser.GameObjects.Image,
+  initialize: function Turret(scene) {
+    Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'turret')
+    this.nextTic = 0
+  },
+  place: function(i, j) {
+    this.y = i * 64 + 64 / 2
+    this.x = j * 64 + 64 / 2
+    map[i][j]
+  },
+  update: function(time, delta) {
+    if (time > this.nextTic) {
+      this.nextTic = time + 1000
+    }
+  }
+})
 
 function create() {
   var graphics = this.add.graphics();
-
   //線的路徑
   path = this.add.path(96, -32);
   path.lineTo(96, 164);
@@ -60,6 +87,8 @@ function create() {
   graphics.lineStyle(3, 0xffffff, 1);
   //畫線
   path.draw(graphics);
+  var graphics = this.add.graphics();
+  drawGrid(graphics);
 
   //將敵人加入地圖
   enemies = this.add.group({
@@ -67,9 +96,30 @@ function create() {
     runChildUpdate: true
   });
   this.nextEnemy = 0;
-  var graphics = this.add.graphics();
-  drawGrid(graphics);
-
+  turrets = this.add.group({
+    classType: Turret,
+    runChildUpdate: true
+  })
+  //加入監聽，點擊可以加入炮塔
+  this.input.on('pointerdown', placeTurret)
+}
+//建立炮塔的方式
+function placeTurret(pointer) {
+  var i = Math.floor(pointer.y / 64)
+  var j = Math.floor(pointer.x / 64)
+  if (canPlaceTurret(i, j)) {
+    //取得炮塔的物件
+    var turret = turrets.get()
+    if (turret) {
+      turret.setActive(true);
+      turret.setVisible(true);
+      turret.place(i, j)
+    }
+  }
+}
+//看地圖的炮塔是否爲 0，是的話回傳true
+function canPlaceTurret(i, j) {
+  return map[i][j] === 0;
 }
 
 function drawGrid(graphics) {
@@ -90,6 +140,7 @@ function drawGrid(graphics) {
 
 function update(time, delta) {
   if (time > this.nextEnemy) {
+    //取得敵人的物件
     var enemy = enemies.get();
     if (enemy) {
       enemy.setActive(true);
