@@ -35,12 +35,14 @@ var WorldScene = new Phaser.Class({
     var gress = map.createStaticLayer('Grass', tiles, 0, 0)
     var obstacles = map.createStaticLayer('Obstacles', tiles, 0, 0)
     obstacles.setCollisionByExclusion([-1])
+
     this.player = this.physics.add.sprite(50, 100, 'player', 6)
     this.physics.world.bounds.width = map.widthInPixels
     this.physics.world.bounds.height = map.heightInPixels
     this.player.setCollideWorldBounds(true);
 
     this.cursors = this.input.keyboard.createCursorKeys()
+
     this.anims.create({
       key: 'left',
       frames: this.anims.generateFrameNumbers('player', {
@@ -49,6 +51,7 @@ var WorldScene = new Phaser.Class({
       frameRate: 10,
       repeat: -1
     });
+
     this.anims.create({
       key: 'right',
       frames: this.anims.generateFrameNumbers('player', {
@@ -57,6 +60,7 @@ var WorldScene = new Phaser.Class({
       frameRate: 10,
       repeat: -1
     });
+
     this.anims.create({
       key: 'up',
       frames: this.anims.generateFrameNumbers('player', {
@@ -65,6 +69,7 @@ var WorldScene = new Phaser.Class({
       frameRate: 10,
       repeat: -1
     });
+
     this.anims.create({
       key: 'down',
       frames: this.anims.generateFrameNumbers('player', {
@@ -84,12 +89,15 @@ var WorldScene = new Phaser.Class({
     this.spawns = this.physics.add.group({
       classType: Phaser.GameObjects.Zone
     });
+
     for (var i = 0; i < 30; i++) {
       var x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
       var y = Phaser.Math.RND.between(0, this.physics.world.bounds.height);
       this.spawns.create(x, y, 20, 20);
     }
+
     this.physics.add.overlap(this.player, this.spawns, this.onMeetEnemy, false, this);
+
   },
   onMeetEnemy: function(player, zone) {
     zone.x = Phaser.Math.RND.between(0, this.physics.world.bounds.width);
