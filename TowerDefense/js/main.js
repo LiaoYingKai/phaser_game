@@ -96,7 +96,7 @@ var Turret = new Phaser.Class({
   },
   fire: function() {
     //偵測敵人是否到半徑的範圍(第三個參數)
-    var enemy = getEnemy(this.x, this.y, 300)
+    var enemy = getEnemy(this.x, this.y, 200)
     if (enemy) {
       var angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y)
       addBullet(this.x, this.y, angle)
@@ -120,7 +120,7 @@ var Bullet = new Phaser.Class({
     this.dy = 0
     this.lifespan = 0
     //子彈速度
-    this.speed = Phaser.Math.GetSpeed(100, 1)
+    this.speed = Phaser.Math.GetSpeed(600, 1)
   },
   fire: function(x, y, angle) {
     this.setActive(true)
@@ -131,7 +131,7 @@ var Bullet = new Phaser.Class({
     this.dy = Math.sin(angle)
 
     //子彈存活的秒數(毫秒)
-    this.lifespan = 10000
+    this.lifespan = 300
   },
   update: function(time, delta) {
     this.lifespan -= delta
