@@ -3,7 +3,11 @@ var config = {
   parent: 'content',
   width: 640,
   height: 512,
+  physics: {
+    default: 'arcade'
+  },
   scene: {
+    key: 'main',
     preload: preload,
     create: create,
     update: update
@@ -11,10 +15,13 @@ var config = {
 }
 var game = new Phaser.Game(config)
 
-var graphics
 var path
+var turrets;
+var enemies;
 //敵人的速度
 var ENEMY_SPEED = 1 / 10000
+//子彈的攻擊力
+var BULLET_DAMAGE = 50
 //地圖可以放炮塔的地方，-1爲不能放
 var map = [
   [0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -34,19 +41,26 @@ function preload() {
 
 var Enemy = new Phaser.Class({
   Extends: Phaser.GameObjects.Image,
-  initialize:
-
-    function Enemy(scene) {
-      Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'enemy')
-      this.follower = {
-        t: 0,
-        vec: new Phaser.Math.Vector2()
-      }
-    },
+  initialize: function Enemy(scene) {
+    Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'enemy')
+    this.follower = {
+      t: 0,
+      vec: new Phaser.Math.Vector2()
+    }
+  },
   startOnPath: function() {
     this.follower.t = 0
+    this.hp = 100
+
     path.getPoint(this.follower.t, this.follower.vec)
     this.setPosition(this.follower.vec.x, this.follower.vec.y)
+  },
+  receiveDamage: function(damage) {
+    this.hp -= damage
+    if (this.hp <= 0) {
+      this.setActive(false)
+      this.setVisible(false)
+    }
   },
   update: function(time, delta) {
     this.follower.t += ENEMY_SPEED * delta;
@@ -58,6 +72,17 @@ var Enemy = new Phaser.Class({
     }
   }
 })
+//判斷半徑範圍
+function getEnemy(x, y, distance) {
+  var enemyUnits = enemies.getChildren()
+  for (var i = 0; i < enemyUnits.length; i++) {
+    if (enemyUnits[i].active && Phaser.Math.Distance.Between(x, y, enemyUnits[i].x, enemyUnits[i].y) <= distance) {
+      return enemyUnits[i]
+    }
+  }
+  return false
+}
+
 var Turret = new Phaser.Class({
   Extends: Phaser.GameObjects.Image,
   initialize: function Turret(scene) {
@@ -69,15 +94,63 @@ var Turret = new Phaser.Class({
     this.x = j * 64 + 64 / 2
     map[i][j]
   },
+  fire: function() {
+    //偵測敵人是否到半徑的範圍(第三個參數)
+    var enemy = getEnemy(this.x, this.y, 300)
+    if (enemy) {
+      var angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y)
+      addBullet(this.x, this.y, angle)
+      this.angle = (angle + Math.PI / 2) * Phaser.Math.RAD_TO_DEG
+      //(angle + Math.PI/2) * Phaser.Math.RAD_TO_DEG;
+    }
+  },
   update: function(time, delta) {
     if (time > this.nextTic) {
+      this.fire()
       this.nextTic = time + 1000
     }
   }
 })
 
+var Bullet = new Phaser.Class({
+  Extends: Phaser.GameObjects.Image,
+  initialize: function bullet(scene) {
+    Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet')
+    this.dx = 0
+    this.dy = 0
+    this.lifespan = 0
+    //子彈速度
+    this.speed = Phaser.Math.GetSpeed(100, 1)
+  },
+  fire: function(x, y, angle) {
+    this.setActive(true)
+    this.setVisible(true)
+    this.setPosition(x, y)
+
+    this.dx = Math.cos(angle)
+    this.dy = Math.sin(angle)
+
+    //子彈存活的秒數(毫秒)
+    this.lifespan = 10000
+  },
+  update: function(time, delta) {
+    this.lifespan -= delta
+
+    this.x += this.dx * (this.speed * delta)
+    this.y += this.dy * (this.speed * delta)
+
+    if (this.lifespan <= 0) {
+      this.setActive(false)
+      this.setVisible(false)
+    }
+
+  },
+})
+
 function create() {
   var graphics = this.add.graphics();
+  drawGrid(graphics);
+
   //線的路徑
   path = this.add.path(96, -32);
   path.lineTo(96, 164);
@@ -87,23 +160,36 @@ function create() {
   graphics.lineStyle(3, 0xffffff, 1);
   //畫線
   path.draw(graphics);
-  var graphics = this.add.graphics();
-  drawGrid(graphics);
 
   //將敵人加入地圖
-  enemies = this.add.group({
+  enemies = this.physics.add.group({
     classType: Enemy,
     runChildUpdate: true
   });
-  this.nextEnemy = 0;
   turrets = this.add.group({
     classType: Turret,
     runChildUpdate: true
   })
   //加入監聽，點擊可以加入炮塔
+  bullets = this.physics.add.group({
+    classType: Bullet,
+    runChildUpdate: true
+  })
+
+  this.nextEnemy = 0;
+  this.physics.add.overlap(enemies, bullets, damageEnemy)
   this.input.on('pointerdown', placeTurret)
+
 }
 //建立炮塔的方式
+function damageEnemy(enemy, bullet) {
+  if (enemy.active === true && bullet.active === true) {
+    bullet.setActive(false)
+    bullet.setVisible(false)
+    enemy.receiveDamage(BULLET_DAMAGE)
+  }
+}
+
 function placeTurret(pointer) {
   var i = Math.floor(pointer.y / 64)
   var j = Math.floor(pointer.x / 64)
@@ -117,9 +203,16 @@ function placeTurret(pointer) {
     }
   }
 }
-//看地圖的炮塔是否爲 0，是的話回傳true
+//看地圖的炮塔要改得位置是否爲 0
 function canPlaceTurret(i, j) {
   return map[i][j] === 0;
+}
+//發射子彈
+function addBullet(x, y, angle) {
+  var bullet = bullets.get()
+  if (bullet) {
+    bullet.fire(x, y, angle)
+  }
 }
 
 function drawGrid(graphics) {
