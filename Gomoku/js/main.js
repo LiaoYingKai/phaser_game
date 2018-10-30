@@ -61,19 +61,16 @@ function putChess(pointer) {
   if (isEnpty(j, i)) {
     if (status == "o") {
       checkerboard[j][i] = status
-      status = 'x'
       self.add.image(15 + j * 30, 15 + i * 30, 'black')
     } else if (status == "x") {
       checkerboard[j][i] = status
-      status = "o"
       self.add.image(15 + j * 30, 15 + i * 30, 'white')
     }
-    if (horizontalWin(j, i)) {
+    if (horizontalWin(j, i) || straightWin(j, i)) {
+      console.log(status + ' is fuck winner')
       console.log('fuck')
     }
-    if (straightWin(j, i)) {
-      console.log('shit')
-    }
+    status = status === 'o' ? 'x' : 'o'
   }
 }
 
@@ -81,9 +78,9 @@ function isEnpty(j, i) {
   return checkerboard[j][i] === 0
 }
 
+//左右
 function horizontalWin(j, i) {
   let count = 1
-  //左右
   for (let x = 1; x < 5; x++) {
     if (checkerboard[j][i] === checkerboard[j - x][i]) {
       count += 1
