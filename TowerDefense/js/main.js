@@ -26,7 +26,7 @@ var BULLET_DAMAGE = 50
 var map = [
   [0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, -1, -1, -1, 0, -1, -1, -1, 0, 0],
+  [0, -1, -1, -1, -1, -1, -1, -1, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
@@ -50,7 +50,7 @@ var Enemy = new Phaser.Class({
   },
   startOnPath: function() {
     this.follower.t = 0
-    this.hp = 100
+    this.hp = 500
 
     path.getPoint(this.follower.t, this.follower.vec)
     this.setPosition(this.follower.vec.x, this.follower.vec.y)
@@ -96,7 +96,7 @@ var Turret = new Phaser.Class({
   },
   fire: function() {
     //偵測敵人是否到半徑的範圍(第三個參數)
-    var enemy = getEnemy(this.x, this.y, 200)
+    var enemy = getEnemy(this.x, this.y, 500)
     if (enemy) {
       var angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y)
       addBullet(this.x, this.y, angle)
@@ -107,7 +107,7 @@ var Turret = new Phaser.Class({
   update: function(time, delta) {
     if (time > this.nextTic) {
       this.fire()
-      this.nextTic = time + 1000
+      this.nextTic = time + 500
     }
   }
 })
@@ -131,7 +131,7 @@ var Bullet = new Phaser.Class({
     this.dy = Math.sin(angle)
 
     //子彈存活的秒數(毫秒)
-    this.lifespan = 300
+    this.lifespan = 600
   },
   update: function(time, delta) {
     this.lifespan -= delta
@@ -143,7 +143,6 @@ var Bullet = new Phaser.Class({
       this.setActive(false)
       this.setVisible(false)
     }
-
   },
 })
 
@@ -160,8 +159,9 @@ function create() {
   graphics.lineStyle(3, 0xffffff, 1);
   //畫線
   path.draw(graphics);
+  console.log(Phaser.Class)
 
-  //將敵人加入地圖
+  //   //將敵人加入地圖
   enemies = this.physics.add.group({
     classType: Enemy,
     runChildUpdate: true
@@ -175,13 +175,11 @@ function create() {
     classType: Bullet,
     runChildUpdate: true
   })
-
   this.nextEnemy = 0;
   this.physics.add.overlap(enemies, bullets, damageEnemy)
   this.input.on('pointerdown', placeTurret)
-
 }
-//建立炮塔的方式
+
 function damageEnemy(enemy, bullet) {
   if (enemy.active === true && bullet.active === true) {
     bullet.setActive(false)
@@ -190,6 +188,7 @@ function damageEnemy(enemy, bullet) {
   }
 }
 
+//建立炮塔的方式
 function placeTurret(pointer) {
   var i = Math.floor(pointer.y / 64)
   var j = Math.floor(pointer.x / 64)
@@ -230,7 +229,7 @@ function drawGrid(graphics) {
   }
   graphics.strokePath()
 }
-
+//
 function update(time, delta) {
   if (time > this.nextEnemy) {
     //取得敵人的物件
