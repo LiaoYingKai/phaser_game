@@ -55,41 +55,43 @@ function create() {
 }
 
 function putChess(pointer) {
-  let j = Math.floor(pointer.x / 30)
   let i = Math.floor(pointer.y / 30)
-  console.log(j, i)
-  if (isEnpty(j, i)) {
+  let j = Math.floor(pointer.x / 30)
+  console.log(i, j)
+  if (isEnpty(i, j)) {
     if (status == "o") {
-      checkerboard[j][i] = status
+      checkerboard[i][j] = status
       self.add.image(15 + j * 30, 15 + i * 30, 'black')
     } else if (status == "x") {
-      checkerboard[j][i] = status
+      checkerboard[i][j] = status
       self.add.image(15 + j * 30, 15 + i * 30, 'white')
     }
-    if (horizontalWin(j, i) || straightWin(j, i) || rightOblique(j, i) || leftOblique(j, i)) {
+
+    if (horizontalWin(i, j) || straightWin(i, j) || rightOblique(i, j) || leftOblique(i, j)) {
       console.log(status + ' is fuck winner')
       console.log('fuck')
     }
     status = status === 'o' ? 'x' : 'o'
   }
+
 }
 
-function isEnpty(j, i) {
-  return checkerboard[j][i] === 0
+function isEnpty(i, j) {
+  return checkerboard[i][j] === 0
 }
 
 //左右
-function horizontalWin(j, i) {
+function horizontalWin(i, j) {
   let count = 1
   for (let x = 1; x < 5; x++) {
-    if (checkerboard[j][i] === checkerboard[j - x][i]) {
+    if (checkerboard[i][j] === checkerboard[i][j - x]) {
       count += 1
     } else {
       break
     }
   }
   for (let x = 1; x < 5; x++) {
-    if (checkerboard[j][i] === checkerboard[j + x][i]) {
+    if (checkerboard[i][j] === checkerboard[i][j + x]) {
       count += 1
     } else {
       break
@@ -99,18 +101,30 @@ function horizontalWin(j, i) {
 }
 
 //上下
-function straightWin(j, i) {
+function straightWin(i, j) {
   let count = 1
   for (let y = 1; y < 5; y++) {
-    if (checkerboard[j][i] === checkerboard[j][i - y]) {
+    if (i - y < 0) {
+      break
+    }
+    if (checkerboard[i][j] === checkerboard[i - y][j]) {
       count += 1
+      // if (checkerboard[j][i - y - 1]) {
+      //   break
+      // }
     } else {
       break
     }
   }
   for (let y = 1; y < 5; y++) {
-    if (checkerboard[j][i] === checkerboard[j][i + y]) {
+    if (i + y > 19) {
+      break
+    }
+    if (checkerboard[i][j] === checkerboard[i + y][j]) {
       count += 1
+      // if (checkerboard[j][i + y + 1]) {
+      //   break
+      // }
     } else {
       break
     }
@@ -119,17 +133,24 @@ function straightWin(j, i) {
 }
 
 //右上到左下
-function rightOblique(j, i) {
+function rightOblique(i, j) {
   let count = 1
+
   for (let y = 1; y < 5; y++) {
-    if (checkerboard[j][i] === checkerboard[j + y][i + y]) {
+    if (i - y < 0) {
+      break
+    }
+    if (checkerboard[i][j] === checkerboard[i - y][j + y]) {
       count += 1
     } else {
       break
     }
   }
   for (let y = 1; y < 5; y++) {
-    if (checkerboard[j][i] === checkerboard[j - y][i - y]) {
+    if (i + y > 19) {
+      break
+    }
+    if (checkerboard[i][j] === checkerboard[i + y][j - y]) {
       count += 1
     } else {
       break
@@ -138,17 +159,23 @@ function rightOblique(j, i) {
   return count >= 5
 }
 //左上到右下
-function leftOblique(j, i) {
+function leftOblique(i, j) {
   let count = 1
   for (let y = 1; y < 5; y++) {
-    if (checkerboard[j][i] === checkerboard[j - y][i + y]) {
+    if (i - y < 0) {
+      break
+    }
+    if (checkerboard[i][j] === checkerboard[i - y][j - y]) {
       count += 1
     } else {
       break
     }
   }
   for (let y = 1; y < 5; y++) {
-    if (checkerboard[j][i] === checkerboard[j + y][i - y]) {
+    if (i + y > 19) {
+      break
+    }
+    if (checkerboard[i][j] === checkerboard[i + y][j + y]) {
       count += 1
     } else {
       break
