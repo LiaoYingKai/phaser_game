@@ -66,7 +66,7 @@ function putChess(pointer) {
       checkerboard[j][i] = status
       self.add.image(15 + j * 30, 15 + i * 30, 'white')
     }
-    if (horizontalWin(j, i) || straightWin(j, i)) {
+    if (horizontalWin(j, i) || straightWin(j, i) || rightOblique(j, i) || leftOblique(j, i)) {
       console.log(status + ' is fuck winner')
       console.log('fuck')
     }
@@ -101,7 +101,6 @@ function horizontalWin(j, i) {
 //上下
 function straightWin(j, i) {
   let count = 1
-  //左右
   for (let y = 1; y < 5; y++) {
     if (checkerboard[j][i] === checkerboard[j][i - y]) {
       count += 1
@@ -118,6 +117,42 @@ function straightWin(j, i) {
   }
   return count >= 5
 }
-//左上到右下
 
 //右上到左下
+function rightOblique(j, i) {
+  let count = 1
+  for (let y = 1; y < 5; y++) {
+    if (checkerboard[j][i] === checkerboard[j + y][i + y]) {
+      count += 1
+    } else {
+      break
+    }
+  }
+  for (let y = 1; y < 5; y++) {
+    if (checkerboard[j][i] === checkerboard[j - y][i - y]) {
+      count += 1
+    } else {
+      break
+    }
+  }
+  return count >= 5
+}
+//左上到右下
+function leftOblique(j, i) {
+  let count = 1
+  for (let y = 1; y < 5; y++) {
+    if (checkerboard[j][i] === checkerboard[j - y][i + y]) {
+      count += 1
+    } else {
+      break
+    }
+  }
+  for (let y = 1; y < 5; y++) {
+    if (checkerboard[j][i] === checkerboard[j + y][i - y]) {
+      count += 1
+    } else {
+      break
+    }
+  }
+  return count >= 5
+}
