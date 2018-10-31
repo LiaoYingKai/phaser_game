@@ -12,8 +12,10 @@ var config = {
 var game = new Phaser.Game(config)
 
 var checkerboard = createCheckerboard()
-var status = "o"
+var camp
 var self
+var socket
+var status = 'o'
 
 function createCheckerboard() {
   let checkerboard = []
@@ -46,36 +48,65 @@ function preload() {
 
 function create() {
   self = this
-  var socket = io('http://localhost:3000/');
+  socket = io('http://localhost:3000/');
   let path = this.add.path(0, 15)
   let graphics = this.add.graphics()
   drawCheckerboard(graphics)
   path.draw(graphics)
 
-  this.input.on('pointerdown', putChess)
+  socket.on('isStart', function(status) {
+    if (status) {
+      self.input.on('pointerdown', putChess)
+    } else {
+      //移除滑鼠監聽或重新載入遊戲
+    }
+  })
+  socket.on('drawChess', function(i, j) {
+    updateCheckerboard(i, j)
+  })
 }
 
-function putChess(pointer) {
-  let i = Math.floor(pointer.y / 30)
-  let j = Math.floor(pointer.x / 30)
-  console.log(i, j)
+function updateCheckerboard(i, j) {
+  //畫到畫布
   if (isEnpty(i, j)) {
-    if (status == "o") {
+    if (status === "o") {
       checkerboard[i][j] = status
       self.add.image(15 + j * 30, 15 + i * 30, 'black')
     } else if (status == "x") {
       checkerboard[i][j] = status
       self.add.image(15 + j * 30, 15 + i * 30, 'white')
     }
-
-    if (horizontalWin(i, j) || straightWin(i, j) || rightOblique(i, j) || leftOblique(i, j)) {
-      console.log(status + ' is fuck winner')
-      console.log('fuck')
-    }
     status = status === 'o' ? 'x' : 'o'
   }
-
+  console.log(checkerboard)
 }
+
+function putChess(pointer) {
+  //送訊息給scoket
+  let i = Math.floor(pointer.y / 30)
+  let j = Math.floor(pointer.x / 30)
+  socket.emit('putChess', i, j)
+}
+
+// function putChess(pointer) {
+//   let i = Math.floor(pointer.y / 30)
+//   let j = Math.floor(pointer.x / 30)
+//   if (isEnpty(i, j)) {
+//     if (status == "o") {
+//       checkerboard[i][j] = status
+//       self.add.image(15 + j * 30, 15 + i * 30, 'black')
+//     } else if (status == "x") {
+//       checkerboard[i][j] = status
+//       self.add.image(15 + j * 30, 15 + i * 30, 'white')
+//     }
+//
+//     if (horizontalWin(i, j) || straightWin(i, j) || rightOblique(i, j) || leftOblique(i, j)) {
+//       console.log(status + ' is fuck winner')
+//       console.log('fuck')
+//     }
+//     status = status === 'o' ? 'x' : 'o'
+//   }
+// }
 
 function isEnpty(i, j) {
   return checkerboard[i][j] === 0
