@@ -40,12 +40,13 @@ function drawCheckerboard(graphics) {
 }
 
 function preload() {
-  this.load.image('black', 'assets/black.jpg')
-  this.load.image('white', 'assets/white.jpg')
+  this.load.image('black', 'assets/black.png')
+  this.load.image('white', 'assets/white.png')
 }
 
 function create() {
   self = this
+  var socket = io('http://localhost:3000/');
   let path = this.add.path(0, 15)
   let graphics = this.add.graphics()
   drawCheckerboard(graphics)
