@@ -15,6 +15,7 @@ var camp
 var self
 var socket
 var status = 'o'
+var gameStatusText
 
 function drawCheckerboard(graphics) {
   graphics.lineStyle(1, 0xffffff, 1)
@@ -36,33 +37,48 @@ function preload() {
 
 function create() {
   self = this
-  socket = io('http://localhost:3000/');
+  // socket = io('http://localhost:3000/');
+  socket = io('http://172.20.10.7:3000/');
+
   let path = this.add.path(0, 15)
   let graphics = this.add.graphics()
   drawCheckerboard(graphics)
   path.draw(graphics)
-
-  socket.on('isStart', function(status) {
-    if (status) {
-      self.input.on('pointerdown', putChess)
-    } else {
-      self.scene.resume()
-      //移除滑鼠監聽或重新載入遊戲
-    }
+  gameStatusText = this.add.text(250, 16, '等待中', {
+    fontSize: '32px',
+    fill: '#fff'
   })
   socket.on('drawChess', function(i, j) {
     updateCheckerboard(i, j)
   })
   socket.on('winner', function(player) {
     if (player === 'o') {
+      gameStatusText.setText("黑子獲勝")
       console.log('黑子獲勝')
-    } else {
+    }
+    if (player === 'x') {
+      gameStatusText.setText("白子獲勝")
       console.log('白子獲勝')
     }
     self.scene.pause();
-    //停止渲染
-    //移除滑鼠監聽或重新載入遊戲
+    socket.disconnect()
+    //重新開始
+    // self.scene.restart()
+    status = 'o'
   })
+  socket.on('changeYou', yourRound => {
+    if (yourRound) {
+      console.log('fuck')
+      gameStatusText.setText("你的回合")
+      self.input.on('pointermove', predeterminedLocation)
+      self.input.on('pointerdown', putChess)
+    }
+  })
+}
+
+function predeterminedLocation(pointer) {
+  let i = Math.floor(pointer.y / 30)
+  let j = Math.floor(pointer.x / 30)
 }
 
 function updateCheckerboard(i, j) {
@@ -73,7 +89,6 @@ function updateCheckerboard(i, j) {
     self.add.image(15 + j * 30, 15 + i * 30, 'white')
   }
   status = status === 'o' ? 'x' : 'o'
-
 }
 
 function putChess(pointer) {
@@ -81,4 +96,5 @@ function putChess(pointer) {
   let i = Math.floor(pointer.y / 30)
   let j = Math.floor(pointer.x / 30)
   socket.emit('putChess', i, j)
+  gameStatusText.setText("")
 }
